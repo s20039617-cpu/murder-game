@@ -4,7 +4,7 @@ const WebSocket = require('ws');
 async function testButtonSignal() {
   console.log('\n=== BUTTON SIGNAL TEST ===\n');
   
-  const ws = new WebSocket('ws://localhost:3001');
+  const ws = new WebSocket('ws://localhost:3000');
   let testsPassed = 0;
   let testsFailed = 0;
 
@@ -43,7 +43,7 @@ async function testButtonSignal() {
         // Wait a bit to see if we get players message
         setTimeout(() => {
           console.log('\n📤 Sending second player join (simulating another client)...');
-          const ws2 = new WebSocket('ws://localhost:3001');
+          const ws2 = new WebSocket('ws://localhost:3000');
           
           ws2.addEventListener('open', () => {
             const joinMessage2 = {

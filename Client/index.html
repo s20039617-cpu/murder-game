@@ -1,0 +1,128 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Murd[ERR] Project</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <!-- Initial Lobby Selection Screen -->
+    <div id="lobbySelection" hidden>
+      <h1>Murd[ERR] Project</h1>
+      <div style="text-align: center; margin: 50px;">
+        <h2>Welcome to Murd[ERR] Project!</h2>
+        <p>Choose how you'd like to play:</p>
+        <div style="margin: 30px;">
+          <button id="joinGameBtn" style="padding: 15px 30px; font-size: 1.2em; background: #2196F3; color: white; border: none; border-radius: 8px; cursor: pointer; margin: 10px;">Join Game</button>
+          <button id="hostGameBtn" style="padding: 15px 30px; font-size: 1.2em; background: #4caf50; color: white; border: none; border-radius: 8px; cursor: pointer; margin: 10px;">Host Game</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="lobby">
+      <h2 id="lobbyTitle" style="text-align: center; margin-bottom: 20px; color: #333;">Game Lobby</h2>
+      
+      <!-- Join Section -->
+      <div id="joinSection" hidden>
+        <div id="joinForm" style="max-width: 400px; margin: 0 auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <h3>Join a Lobby</h3>
+          <div style="margin: 10px 0;">
+            <input id="joinCodeInputLobby" type="text" placeholder="Enter lobby code" style="padding: 8px; font-size: 1em; text-transform: uppercase; width: 100%; box-sizing: border-box;" maxlength="10" />
+          </div>
+          <div style="margin: 10px 0;">
+            <input id="nameInput" type="text" placeholder="Enter your name" style="padding: 8px; font-size: 1em; width: 100%; box-sizing: border-box;" />
+          </div>
+          <button id="joinBtn" style="padding: 10px 20px; font-size: 1.1em; background: #2196F3; color: white; border: none; border-radius: 4px; cursor: pointer; width: 100%;">Join Lobby</button>
+        </div>
+      </div>
+
+      <!-- Host Section -->
+      <div id="hostSection" hidden>
+        <div id="hostForm" style="max-width: 400px; margin: 0 auto; padding: 20px; background: #f8fff8; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 2px solid #4caf50;">
+          <h3>Host a Lobby</h3>
+          <div style="margin: 10px 0;">
+            <input id="hostCodeInputLobby" type="text" placeholder="Create a lobby code" style="padding: 8px; font-size: 1em; text-transform: uppercase; width: 100%; box-sizing: border-box;" maxlength="10" />
+          </div>
+          <div style="margin: 10px 0;">
+            <input id="hostNameInputLobby" type="text" placeholder="Your name" style="padding: 8px; font-size: 1em; width: 100%; box-sizing: border-box;" />
+          </div>
+          <button id="hostBtn" style="padding: 10px 20px; font-size: 1.1em; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; width: 100%;">Host Lobby</button>
+        </div>
+      </div>
+
+      <!-- Lobby Status Section (shown after joining) -->
+      <div id="lobbyStatus" hidden style="max-width: 800px; margin: 0 auto;">
+        <!-- Lobby Header -->
+        <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+          <h2 style="margin: 0; font-size: 2em;">🎭 Murd[ERR] Project Lobby</h2>
+          <div style="margin-top: 10px; font-size: 1.2em; opacity: 0.9;">
+            Lobby Code: <strong id="lobbyCodeDisplay" style="background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 6px; font-family: monospace;">—</strong>
+          </div>
+        </div>
+
+        <!-- Players Section -->
+        <div style="background: white; border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+          <h3 style="margin-top: 0; color: #333; display: flex; align-items: center; gap: 10px;">
+            👥 Players in Lobby
+            <span id="playerCount" style="background: #667eea; color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.8em; font-weight: normal;">0</span>
+          </h3>
+          <div id="playerListLobby" style="background: #f8f9fa; padding: 15px; border-radius: 8px; min-height: 60px; border: 2px dashed #dee2e6;"></div>
+          <div id="hostStatus" style="margin-top: 15px; padding: 10px; background: #e3f2fd; border-radius: 6px; color: #1976d2; font-weight: bold; text-align: center;"></div>
+        </div>
+
+        <!-- Host Controls -->
+        <div id="hostControls" hidden style="background: linear-gradient(135deg, #ffecd2 0%, #fcb69f 100%); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 2px solid #ff9800;">
+          <h3 style="margin-top: 0; color: #e65100; display: flex; align-items: center; gap: 10px;">
+            ⚙️ Host Controls
+            <span style="font-size: 0.8em; font-weight: normal; background: #fff3e0; padding: 2px 8px; border-radius: 10px;">Select Roles</span>
+          </h3>
+          <p style="color: #424242; margin-bottom: 15px;">Choose which roles will be available in this game:</p>
+          <div id="roleButtons" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin: 15px 0;"></div>
+          <button id="startBtn" style="padding: 15px 30px; font-size: 1.3em; background: linear-gradient(135deg, #4caf50 0%, #45a049 100%); color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.2); transition: all 0.3s ease; transform: scale(1);" onmouseover="this.style.transform='scale(1.02)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.3)';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 2px 4px rgba(0,0,0,0.2)';">🚀 START GAME</button>
+        </div>
+
+        <!-- Non-Host Waiting Message -->
+        <div id="waitingMessage" hidden style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-radius: 12px; padding: 20px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 2px solid #2196f3;">
+          <div style="font-size: 3em; margin-bottom: 10px;">⏳</div>
+          <p style="font-size: 1.2em; color: #1976d2; margin: 0; font-weight: bold;">Waiting for host to start the game...</p>
+          <p style="color: #424242; margin: 10px 0 0 0;">Grab a drink and chat with your fellow players!</p>
+        </div>
+      </div>
+    </div>
+
+    <div id="game" hidden>
+      <div id="gameHeader" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 10px; background: #f0f0f0; border-radius: 4px;">
+        <div>
+          <div id="status">Phase: <span id="phase">waiting</span></div>
+          <div id="role">Role: <span id="myRole">—</span></div>
+        </div>
+        <div style="display: flex; gap: 10px;">
+          <button id="restartBtn" hidden style="padding: 10px 20px; font-size: 1em; background: #ff6b00; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold;">RESTART GAME</button>
+        </div>
+      </div>
+      <div id="playerCircle" style="display: flex; justify-content: center; margin: 40px 0;">
+        <div style="position: relative; width: 500px; height: 500px; display: flex; align-items: center; justify-content: center;">
+          <div id="circleContainer" style="position: relative; width: 100%; height: 100%;"></div>
+        </div>
+      </div>
+      <div id="playersList"></div>
+      <div id="nightActions" hidden>
+        <div id="nightActionsTitle">Night Phase - Choose your action:</div>
+        <div id="nightActionsContent"></div>
+      </div>
+      <div id="votes"></div>
+      <div id="chat">
+        <div id="messages"></div>
+        <div id="chatControls">
+          <input id="msgInput" placeholder="Type a message" />
+          <button id="sendMsg">Send</button>
+        </div>
+        <div id="pmTo">Sending to: <span id="pmTarget">All</span></div>
+      </div>
+      <div id="log"></div>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>

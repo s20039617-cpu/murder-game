@@ -1,0 +1,55 @@
+=== NEW PHASE SYSTEM IMPLEMENTED ===
+
+PHASE CYCLE (Repeating):
+1. Day Phase 1 (30 seconds)
+   - Two random players selected for private chat
+   - Other players cannot see/interact
+   - Selected players receive: day1Players array in phase message
+
+2. Day Phase 2 (30 seconds)
+   - Full group discussion
+   - All players can see each other
+   - Voting preparation begins
+
+3. Voting Phase (20 seconds)
+   - Players vote to eliminate someone
+   - Votes are tallied
+   - Elimination happens
+
+4. Night Phase (20 seconds)
+   - Murder/Seer/Guard take actions
+   - Private night actions processed
+   
+Then cycle repeats back to Day Phase 1
+
+TOTAL CYCLE TIME: 30 + 30 + 20 + 20 = 100 seconds
+
+IMPLEMENTATION DETAILS:
+- Server file: Server/index.js
+  - Constructor updated with durations: day1Duration=30, day2Duration=30, votingDuration=20, nightDuration=20
+  - New method: selectDay1Players() - randomly picks 2 alive players
+  - Updated start() - begins with day1 phase and selects day1 players
+  - Updated advancePhase() - implements new phase cycle
+
+- Client file: Client/app.js
+  - Updated handlePhase() to display phase names with formatting
+  - Shows "Day Phase 1 (Private Chat)" when day1
+  - Shows "Day Phase 2 (Discussion)" when day2
+  - Shows "Voting Phase" when voting
+  - Shows "Night Phase" when night
+  - Day1 players see notification if they're selected for private chat
+
+VERIFICATION:
+From server test logs:
+✓ Game starts with day1 phase
+✓ Day1Players [1, 2] selected from 3 players
+✓ Day1 duration set to 30 seconds
+✓ After 30 seconds, automatically transitions to day2
+✓ Day2 duration set to 30 seconds
+✓ Phase messages sent with all details (phase, duration, day1Players)
+
+CLIENT UI SHOWS:
+- Proper phase name display for each phase
+- Day 1 players get notification they're in private chat
+- All players see game div (lobby hidden)
+- Restart button visible only for host during gameplay

@@ -1,0 +1,29 @@
+body { font-family: Arial, sans-serif; margin: 16px; }
+#lobby { border: 2px solid #333; padding: 16px; max-width: 600px; }
+#lobby h2 { margin-top: 0; }
+#joinSection { margin-bottom: 16px; }
+#joinSection input { padding: 6px; width: 200px; margin-right: 8px; }
+#joinSection button { padding: 6px 12px; }
+#lobbyStatus { margin-top: 12px; }
+#playerListLobby { background: #f5f5f5; padding: 10px; margin: 10px 0; border-radius: 4px; }
+#hostControls { background: #fffacd; padding: 10px; margin-top: 10px; border-radius: 4px; }
+#hostControls h3 { margin-top: 0; }
+#roleCheckboxes { margin: 8px 0; }
+#roleCheckboxes label { display: block; margin: 4px 0; }
+#roleCheckboxes input { margin-right: 6px; }
+#hostControls button { padding: 8px 16px; font-size: 1.1em; background: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer; }
+#hostControls button:hover { background: #45a049; }
+#playersList .player { margin: 6px 0; }
+#nightActions { border: 2px solid #0066cc; padding: 10px; margin-top: 10px; background: #f0f8ff; max-width: 600px }
+#nightActionsTitle { font-weight: bold; margin-bottom: 8px; color: #0066cc }
+.night-action-group { margin: 8px 0 }
+.night-action-group button { margin-right: 5px; margin-top: 4px; padding: 5px 10px }
+#chat { border: 1px solid #ddd; padding: 8px; margin-top: 8px; max-width: 600px }
+#messages { max-height: 160px; overflow:auto; border: 1px solid #eee; padding: 6px; background: #fafafa }
+#chatControls { margin-top: 6px }
+#msgInput { width: 70%; padding: 6px }
+#sendMsg { padding: 6px 10px }
+#pmTo { margin-top: 6px; font-size: 0.9em; color: #333 }
+#playersList .player { cursor: pointer }
+.player.selected { background: #eef; }
+#log { margin-top: 12px; border-top: 1px solid #ccc; padding-top: 8px; max-height: 200px; overflow:auto }

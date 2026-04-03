@@ -6,11 +6,7 @@ const path = require('path');
 const app = express();
 const server = http.createServer(app);
 const wss = new WebSocket.Server({ server });
-const DEBUG = process.env.DEBUG === '1';
-if (!DEBUG) {
-  console.log = () => {};
-}
-app.use(express.static(path.join(__dirname, '..', 'Client')));
+app.use(express.static(path.join(__dirname, 'Client')));
 
 let nextId = 1;
 let lobbies = new Map(); // code -> { hostId, players: Map, game: Game }
@@ -492,7 +488,7 @@ class Game {
   handleVote(voterId, targetId) {
     const voter = this.players.get(voterId);
     if (!voter || !voter.info.alive) return;
-    if (this.phase !== 'day') return;
+    if (this.phase !== 'voting') return;
     if (!this.players.has(targetId)) return;
     voter.info.vote = targetId;
     this.broadcast('voteUpdate', { voter: voterId, target: targetId });

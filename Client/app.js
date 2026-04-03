@@ -11,11 +11,6 @@ let sleepingPlayer = null; // Player who is sleeping if odd number of players
 let sleepingMessage = null; // Random funny message for sleeping player
 let currentLobbyCode = null; // Current lobby code the player is in
 
-const DEBUG = false;
-if (!DEBUG) {
-  console.log = () => {};
-}
-
 const availableRoles = ['seer', 'guard', 'doctor', 'medic', 'poisoner', 'murder', 'undertaker', 'villager'];
 
 // DOM Elements - Initial screens
@@ -53,8 +48,18 @@ const waitingMessage = document.getElementById('waitingMessage');
 const startBtn = document.getElementById('startBtn');
 const roleButtons = document.getElementById('roleButtons');
 
-// WebSocket connection
-const ws = new WebSocket('ws://localhost:3001');
+// WebSocket connection (works locally and when hosted remotely)
+const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+const ws = new WebSocket(`${wsProtocol}//${window.location.host}`);
+
+function sendWSMessage(payload) {
+  if (ws.readyState !== WebSocket.OPEN) {
+    alert('Still connecting to server. Please try again in a second.');
+    return false;
+  }
+  ws.send(JSON.stringify(payload));
+  return true;
+}
 
 // WebSocket event handlers
 ws.addEventListener('open', () => {
@@ -125,13 +130,9 @@ function handleLobbyJoined(data) {
   console.log('[Handler:lobbyJoined] Successfully joined lobby:', data.code);
   currentLobbyCode = data.lobbyCode || data.code;
   myId = data.playerId;
+  isHost = false;
 
-  lobbySelection.hidden = true;
-  lobby.hidden = false;
-  joinSection.hidden = true;
-  hostSection.hidden = true;
-  lobbyStatus.hidden = false;
-  game.hidden = true;
+  showLobbyStatusView();
 
   console.log('[UI] Transitioning to lobby status after join');
 }
@@ -142,14 +143,22 @@ function handleLobbyHosted(data) {
   myId = data.playerId;
   isHost = true;
 
+  showLobbyStatusView();
+
+  console.log('[UI] Transitioning to lobby status after host');
+}
+
+function showLobbyStatusView() {
   lobbySelection.hidden = true;
   lobby.hidden = false;
   joinSection.hidden = true;
   hostSection.hidden = true;
   lobbyStatus.hidden = false;
   game.hidden = true;
-
-  console.log('[UI] Transitioning to lobby status after host');
+  const lobbyTitle = document.getElementById('lobbyTitle');
+  if (lobbyTitle) {
+    lobbyTitle.textContent = isHost ? 'Host Lobby' : 'Player Lobby';
+  }
 }
 
 function handleLobbyError(data) {
@@ -161,12 +170,29 @@ function handleLobbyError(data) {
 function showLobbyJoinScreen() {
   console.log('[UI] Showing lobby join screen');
   lobbySelection.hidden = true;
-  joinGameScreen.hidden = true;
-  hostGameScreen.hidden = true;
   lobby.hidden = false;
   joinSection.hidden = false;
+  hostSection.hidden = true;
   lobbyStatus.hidden = true;
   game.hidden = true;
+  const lobbyTitle = document.getElementById('lobbyTitle');
+  if (lobbyTitle) {
+    lobbyTitle.textContent = 'Lobby Join Room';
+  }
+}
+
+function showHostPanel() {
+  console.log('[UI] Showing host panel');
+  lobbySelection.hidden = true;
+  lobby.hidden = false;
+  joinSection.hidden = true;
+  hostSection.hidden = false;
+  lobbyStatus.hidden = true;
+  game.hidden = true;
+  const lobbyTitle = document.getElementById('lobbyTitle');
+  if (lobbyTitle) {
+    lobbyTitle.textContent = 'Host Panel';
+  }
 }
 
 function handleJoined(data) {
@@ -195,6 +221,7 @@ function handlePlayers(data) {
 function handlePhase(data) {
   console.log('[Handler:phase] Phase changed to:', data.phase);
   currentPhase = data.phase;
+  let displayPhase = 'waiting';
   
   // Track the day1 pairs for private chat
   if (data.day1Pairs) {
@@ -232,7 +259,7 @@ function handlePhase(data) {
     renderPlayerCircle();
     
     // Display phase name with formatting
-    let displayPhase = data.phase;
+    displayPhase = data.phase;
     if (data.phase === 'day1') {
       displayPhase = 'Day Phase 1 (Private Chat)';
       if (data.day1Players && data.day1Players.includes(myId)) {
@@ -601,62 +628,6 @@ function toggleRole(role) {
   renderRoleButtons();
 }
 
-// Event listeners
-joinBtn.addEventListener('click', () => {
-  const code = joinCodeInputLobby.value.trim().toUpperCase();
-  const name = nameInput.value.trim();
-  
-  if (!code) {
-    alert('Please enter a lobby code');
-    joinCodeInputLobby.focus();
-    return;
-  }
-  
-  if (!name) {
-    alert('Please enter your name');
-    nameInput.focus();
-    return;
-  }
-  
-  console.log('[Action:join] Joining lobby', code, 'with name:', name);
-  currentLobbyCode = code;
-  ws.send(JSON.stringify({ type: 'joinLobby', code: code, name: name }));
-});
-
-nameInput.addEventListener('keypress', (event) => {
-  if (event.key === 'Enter') {
-    event.preventDefault();
-    joinBtn.click();
-  }
-});
-
-hostBtn.addEventListener('click', () => {
-  const code = hostCodeInputLobby.value.trim().toUpperCase();
-  const name = hostNameInputLobby.value.trim();
-  
-  if (!code) {
-    alert('Please enter a lobby code');
-    hostCodeInputLobby.focus();
-    return;
-  }
-  
-  if (code.length < 4) {
-    alert('Lobby code must be at least 4 characters');
-    hostCodeInputLobby.focus();
-    return;
-  }
-  
-  if (!name) {
-    alert('Please enter your name');
-    hostNameInputLobby.focus();
-    return;
-  }
-  
-  console.log(`[Action:host] Hosting lobby ${code} with name:`, name);
-  currentLobbyCode = code;
-  ws.send(JSON.stringify({ type: 'hostLobby', code: code, name: name }));
-});
-
 startBtn.addEventListener('click', () => {
   if (!isHost) {
     alert('Only the host can start the game!');
@@ -721,9 +692,6 @@ function init() {
   
   // Set up event listeners for lobby selection
   setupLobbySelectionListeners();
-  
-  // Set up WebSocket connection
-  connectWebSocket();
 }
 
 function renderPlayerCircle() {
@@ -772,8 +740,7 @@ function renderPlayerCircle() {
 function showLobbySelection() {
   console.log('[UI] Showing lobby selection screen');
   lobbySelection.hidden = false;
-  joinGameScreen.hidden = true;
-  hostGameScreen.hidden = true;
+  lobby.hidden = true;
   joinSection.hidden = true;
   hostSection.hidden = true;
   lobbyStatus.hidden = true;
@@ -784,23 +751,13 @@ function setupLobbySelectionListeners() {
   // Join Game button - show join form
   joinGameBtn.addEventListener('click', () => {
     console.log('[UI] Showing join lobby form');
-    lobbySelection.hidden = true;
-    lobby.hidden = false;
-    joinSection.hidden = false;
-    hostSection.hidden = true;
-    lobbyStatus.hidden = true;
-    game.hidden = true;
+    showLobbyJoinScreen();
   });
   
   // Host Game button - show host form
   hostGameBtn.addEventListener('click', () => {
     console.log('[UI] Showing host lobby form');
-    lobbySelection.hidden = true;
-    lobby.hidden = false;
-    joinSection.hidden = true;
-    hostSection.hidden = false;
-    lobbyStatus.hidden = true;
-    game.hidden = true;
+    showHostPanel();
   });
 
   // Join Lobby button - from join section
@@ -815,7 +772,7 @@ function setupLobbySelectionListeners() {
     
     console.log(`[Action] Joining lobby ${code} as ${name}`);
     currentLobbyCode = code;
-    ws.send(JSON.stringify({ type: 'joinLobby', code: code, name: name }));
+    sendWSMessage({ type: 'joinLobby', code: code, name: name });
   });
 
   nameInput.addEventListener('keypress', (event) => {
@@ -842,7 +799,7 @@ function setupLobbySelectionListeners() {
     
     console.log(`[Action] Hosting lobby ${code} as ${name}`);
     currentLobbyCode = code;
-    ws.send(JSON.stringify({ type: 'hostLobby', code: code, name: name }));
+    sendWSMessage({ type: 'hostLobby', code: code, name: name });
   });
 
   hostNameInputLobby.addEventListener('keypress', (event) => {

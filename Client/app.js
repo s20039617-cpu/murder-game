@@ -48,8 +48,9 @@ const waitingMessage = document.getElementById('waitingMessage');
 const startBtn = document.getElementById('startBtn');
 const roleButtons = document.getElementById('roleButtons');
 
-// WebSocket connection
-const ws = new WebSocket('ws://localhost:3001');
+// WebSocket connection (works locally and when hosted remotely)
+const wsProtocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+const ws = new WebSocket(`${wsProtocol}//${window.location.host}`);
 
 function sendWSMessage(payload) {
   if (ws.readyState !== WebSocket.OPEN) {
@@ -220,6 +221,7 @@ function handlePlayers(data) {
 function handlePhase(data) {
   console.log('[Handler:phase] Phase changed to:', data.phase);
   currentPhase = data.phase;
+  let displayPhase = 'waiting';
   
   // Track the day1 pairs for private chat
   if (data.day1Pairs) {
@@ -257,7 +259,7 @@ function handlePhase(data) {
     renderPlayerCircle();
     
     // Display phase name with formatting
-    let displayPhase = data.phase;
+    displayPhase = data.phase;
     if (data.phase === 'day1') {
       displayPhase = 'Day Phase 1 (Private Chat)';
       if (data.day1Players && data.day1Players.includes(myId)) {
